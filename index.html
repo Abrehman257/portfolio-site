@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abdulrehman | AI Automation</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080c10;
+    --bg2: #0d1117;
+    --bg3: #111820;
+    --accent: #00ffc2;
+    --accent2: #0066ff;
+    --text: #e8edf2;
+    --muted: #5a6a7a;
+    --border: #1a2535;
+    --card: #0d1520;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s;
+  }
+  .cursor-ring {
+    width: 32px; height: 32px;
+    border: 1px solid var(--accent);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none;
+    z-index: 9998;
+    opacity: 0.5;
+    transition: transform 0.15s, width 0.2s, height 0.2s;
+  }
+
+  /* Grid overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,194,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,194,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Nav */
+  nav {
+    position: fixed; top: 0; width: 100%;
+    padding: 1.2rem 4rem;
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(8,12,16,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 2px;
+  }
+
+  nav a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    letter-spacing: 1px;
+    transition: color 0.2s;
+    font-family: 'Space Mono', monospace;
+  }
+  nav a:hover { color: var(--accent); }
+  nav .links { display: flex; gap: 2.5rem; }
+
+  /* Sections */
+  section {
+    position: relative;
+    z-index: 1;
+    padding: 0 4rem;
+  }
+
+  /* Hero */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 6rem;
+    padding-bottom: 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.2s forwards;
+  }
+
+  h1 {
+    font-size: clamp(3rem, 8vw, 7rem);
+    font-weight: 800;
+    line-height: 0.95;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.4s forwards;
+  }
+
+  h1 .accent { color: var(--accent); }
+  h1 .dim { color: var(--muted); }
+
+  .hero-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    max-width: 480px;
+    line-height: 1.8;
+    margin-bottom: 3rem;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.6s forwards;
+  }
+
+  .hero-btns {
+    display: flex; gap: 1rem; flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.8s forwards;
+  }
+
+  .btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 0.75rem 1.75rem;
+    border: 1px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+    cursor: none;
+  }
+  .btn:hover { background: var(--accent); color: var(--bg); }
+  .btn.sec { border-color: var(--border); color: var(--muted); }
+  .btn.sec:hover { border-color: var(--muted); color: var(--text); background: transparent; }
+
+  /* Animated line */
+  .hero-line {
+    position: absolute;
+    right: 4rem; top: 50%;
+    transform: translateY(-50%);
+    display: flex; flex-direction: column; gap: 8px;
+    opacity: 0;
+    animation: fadeIn 1s 1s forwards;
+  }
+  .hero-line span {
+    width: 1px; background: var(--accent);
+    animation: linePulse 2s infinite;
+  }
+  .hero-line span:nth-child(1) { height: 80px; animation-delay: 0s; }
+  .hero-line span:nth-child(2) { height: 40px; animation-delay: 0.3s; opacity: 0.5; }
+  .hero-line span:nth-child(3) { height: 20px; animation-delay: 0.6s; opacity: 0.25; }
+
+  @keyframes linePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+
+  /* Status badge */
+  .status {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.3s forwards;
+  }
+  .status-dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: blink 1.5s infinite;
+  }
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
+
+  /* Section header */
+  .sec-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+  .sec-title {
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 800;
+    margin-bottom: 3rem;
+    line-height: 1.1;
+  }
+
+  /* About */
+  #about {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+  }
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  .about-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    line-height: 2;
+    color: var(--muted);
+  }
+  .about-text strong { color: var(--text); }
+
+  .skills-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .skill-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 1rem 1.25rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .skill-item:hover { border-color: var(--accent); }
+  .skill-item::before {
+    content: '';
+    position: absolute; top: 0; left: 0;
+    width: 2px; height: 100%;
+    background: var(--accent);
+    transform: scaleY(0);
+    transition: transform 0.2s;
+    transform-origin: bottom;
+  }
+  .skill-item:hover::before { transform: scaleY(1); }
+  .skill-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .skill-level {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* Projects */
+  #projects {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .projects-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .project-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 1.75rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: none;
+  }
+  .project-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .project-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+  .project-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: var(--text);
+  }
+  .project-desc {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.8;
+    margin-bottom: 1.25rem;
+  }
+  .project-tags {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 1rem;
+  }
+  .tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 3px 10px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    letter-spacing: 1px;
+  }
+  .project-link {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    text-decoration: none;
+    letter-spacing: 1px;
+  }
+  .project-link:hover { text-decoration: underline; }
+
+  /* Add Project Form */
+  .add-project-section {
+    background: var(--bg3);
+    border: 1px dashed var(--border);
+    padding: 2rem;
+    margin-top: 1rem;
+  }
+
+  .add-project-section h3 {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .form-group {
+    display: flex; flex-direction: column; gap: 6px;
+  }
+
+  .form-group label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+  }
+
+  .form-group input,
+  .form-group textarea {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    padding: 0.6rem 0.75rem;
+    outline: none;
+    transition: border-color 0.2s;
+    resize: vertical;
+  }
+  .form-group input:focus,
+  .form-group textarea:focus { border-color: var(--accent); }
+
+  .form-full { grid-column: 1 / -1; }
+
+  .btn-add {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 0.65rem 1.5rem;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    cursor: none;
+    transition: opacity 0.2s;
+    margin-top: 0.5rem;
+  }
+  .btn-add:hover { opacity: 0.85; }
+
+  .btn-delete {
+    position: absolute; top: 1rem; right: 1rem;
+    background: none;
+    border: 1px solid transparent;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    cursor: none;
+    padding: 3px 8px;
+    transition: all 0.2s;
+  }
+  .btn-delete:hover { border-color: #ff4455; color: #ff4455; }
+
+  /* Contact */
+  #contact {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .contact-inner {
+    max-width: 600px;
+  }
+
+  .contact-link {
+    display: inline-flex; align-items: center; gap: 0.75rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    text-decoration: none;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+    width: 100%;
+    transition: color 0.2s;
+  }
+  .contact-link:hover { color: var(--accent); }
+  .contact-icon { font-size: 16px; }
+
+  /* Footer */
+  footer {
+    padding: 2rem 4rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative; z-index: 1;
+  }
+  footer p {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s, transform 0.6s;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    nav { padding: 1.2rem 1.5rem; }
+    nav .links { gap: 1.5rem; }
+    section { padding: 0 1.5rem; }
+    .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .form-grid { grid-template-columns: 1fr; }
+    h1 { font-size: 3rem; }
+    .hero-line { display: none; }
+    footer { padding: 2rem 1.5rem; flex-direction: column; gap: 0.5rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav>
+  <span class="logo">AR.DEV</span>
+  <div class="links">
+    <a href="#about">About</a>
+    <a href="#projects">Projects</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section id="hero">
+  <div class="status">
+    <span class="status-dot"></span>
+    Available for freelance work
+  </div>
+  <div class="hero-tag">// AI AUTOMATION SPECIALIST</div>
+  <h1>
+    Abdul<span class="accent">.</span><br>
+    <span class="dim">Rehman</span>
+  </h1>
+  <p class="hero-sub">
+    Building intelligent automation workflows with n8n &amp; AI.<br>
+    BS Artificial Intelligence · Based in Pakistan.
+  </p>
+  <div class="hero-btns">
+    <a href="#projects" class="btn">View Projects</a>
+    <a href="https://www.linkedin.com/in/abdul-rehman-69867128b/" class="btn sec" target="_blank">LinkedIn ↗</a>
+  </div>
+
+  <div class="hero-line">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</section>
+
+<!-- About -->
+<section id="about">
+  <div class="reveal">
+    <p class="sec-label">// 01. ABOUT</p>
+    <h2 class="sec-title">Who I am.</h2>
+  </div>
+  <div class="about-grid reveal">
+    <div class="about-text">
+      <p>I'm <strong>Abdulrehman</strong>, an AI Automation specialist currently pursuing a <strong>BS in Artificial Intelligence</strong>.</p>
+      <br>
+      <p>I specialize in building <strong>n8n workflows</strong> that automate complex business processes — connecting APIs, AI models, and services into seamless pipelines that save time and eliminate repetitive work.</p>
+      <br>
+      <p>I'm constantly learning, experimenting, and pushing the limits of what automation can do.</p>
+    </div>
+    <div class="skills-grid">
+      <div class="skill-item">
+        <div class="skill-name">n8n</div>
+        <div class="skill-level">Workflow Automation</div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-name">AI Integration</div>
+        <div class="skill-level">LLMs & APIs</div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-name">Python</div>
+        <div class="skill-level">Scripting & AI</div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-name">REST APIs</div>
+        <div class="skill-level">Integration</div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-name">Prompt Eng.</div>
+        <div class="skill-level">LLM Design</div>
+      </div>
+      <div class="skill-item">
+        <div class="skill-name">Web Scraping</div>
+        <div class="skill-level">Data Collection</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Projects -->
+<section id="projects">
+  <div class="projects-header reveal">
+    <div>
+      <p class="sec-label">// 02. PROJECTS</p>
+      <h2 class="sec-title">My work.</h2>
+    </div>
+  </div>
+
+  <div class="project-grid reveal" id="projectGrid">
+    <!-- Default starter projects -->
+    <div class="project-card" data-id="1">
+      <button class="btn-delete" onclick="deleteProject(1)">✕ remove</button>
+      <div class="project-num">001</div>
+      <div class="project-title">AI Lead Generation Bot</div>
+      <div class="project-desc">Automated lead scraping and outreach workflow using n8n + OpenAI. Finds prospects, writes personalized emails, and sends them automatically.</div>
+      <div class="project-tags">
+        <span class="tag">N8N</span>
+        <span class="tag">OPENAI</span>
+        <span class="tag">AUTOMATION</span>
+      </div>
+    </div>
+
+    <div class="project-card" data-id="2">
+      <button class="btn-delete" onclick="deleteProject(2)">✕ remove</button>
+      <div class="project-num">002</div>
+      <div class="project-title">Telegram AI Assistant</div>
+      <div class="project-desc">A Telegram bot powered by GPT-4 that answers questions, summarizes content, and manages tasks — all through n8n webhooks.</div>
+      <div class="project-tags">
+        <span class="tag">N8N</span>
+        <span class="tag">TELEGRAM</span>
+        <span class="tag">GPT-4</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Project Form -->
+  <div class="add-project-section reveal">
+    <h3>// ADD NEW PROJECT</h3>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Project Title</label>
+        <input type="text" id="pTitle" placeholder="e.g. Email Automation Bot">
+      </div>
+      <div class="form-group">
+        <label>Tools Used (comma separated)</label>
+        <input type="text" id="pTags" placeholder="e.g. n8n, OpenAI, Gmail">
+      </div>
+      <div class="form-group form-full">
+        <label>Description</label>
+        <textarea id="pDesc" rows="3" placeholder="What does this workflow do? What problem does it solve?"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Link (optional)</label>
+        <input type="text" id="pLink" placeholder="https://...">
+      </div>
+    </div>
+    <button class="btn-add" onclick="addProject()">+ Add to Portfolio</button>
+  </div>
+</section>
+
+<!-- Contact -->
+<section id="contact">
+  <div class="reveal">
+    <p class="sec-label">// 03. CONTACT</p>
+    <h2 class="sec-title">Let's connect.</h2>
+  </div>
+  <div class="contact-inner reveal">
+    <a class="contact-link" href="https://www.linkedin.com/in/abdul-rehman-69867128b/" target="_blank">
+      <span class="contact-icon">in</span>
+      linkedin.com/in/abdul-rehman-69867128b ↗
+    </a>
+    <a class="contact-link" href="mailto:your@email.com">
+      <span class="contact-icon">@</span>
+      your@email.com &nbsp;<span style="font-size:10px;color:var(--muted)">(update this)</span>
+    </a>
+  </div>
+</section>
+
+<footer>
+  <p>© 2025 Abdulrehman · Built for Vercel</p>
+  <p>AI Automation Specialist</p>
+</footer>
+
+<script>
+  // Custom cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursor.style.transform = `translate(${mx - 4}px, ${my - 4}px)`;
+  });
+
+  (function animRing() {
+    rx += (mx - rx) * 0.12;
+    ry += (my - ry) * 0.12;
+    ring.style.transform = `translate(${rx - 16}px, ${ry - 16}px)`;
+    requestAnimationFrame(animRing);
+  })();
+
+  document.querySelectorAll('a, button, .project-card').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      ring.style.width = '48px';
+      ring.style.height = '48px';
+      cursor.style.opacity = '0';
+    });
+    el.addEventListener('mouseleave', () => {
+      ring.style.width = '32px';
+      ring.style.height = '32px';
+      cursor.style.opacity = '1';
+    });
+  });
+
+  // Scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 100);
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => io.observe(r));
+
+  // Projects
+  let projectCount = 2;
+  const projects = JSON.parse(localStorage.getItem('ar_projects') || '[]');
+
+  function saveProjects() {
+    localStorage.setItem('ar_projects', JSON.stringify(projects));
+  }
+
+  function renderProject(p) {
+    const grid = document.getElementById('projectGrid');
+    const allCards = grid.querySelectorAll('.project-card');
+    const num = String(allCards.length + 1).padStart(3, '0');
+
+    const card = document.createElement('div');
+    card.className = 'project-card';
+    card.dataset.id = p.id;
+
+    const tags = p.tags.map(t => `<span class="tag">${t.trim().toUpperCase()}</span>`).join('');
+    const linkHtml = p.link ? `<a href="${p.link}" class="project-link" target="_blank">View project ↗</a>` : '';
+
+    card.innerHTML = `
+      <button class="btn-delete" onclick="deleteProject(${p.id})">✕ remove</button>
+      <div class="project-num">${num}</div>
+      <div class="project-title">${p.title}</div>
+      <div class="project-desc">${p.desc}</div>
+      <div class="project-tags">${tags}</div>
+      ${linkHtml}
+    `;
+    grid.appendChild(card);
+  }
+
+  // Load saved projects
+  projects.forEach(p => renderProject(p));
+
+  function addProject() {
+    const title = document.getElementById('pTitle').value.trim();
+    const desc = document.getElementById('pDesc').value.trim();
+    const tagsRaw = document.getElementById('pTags').value.trim();
+    const link = document.getElementById('pLink').value.trim();
+
+    if (!title || !desc) {
+      alert('Please fill in at least the title and description.');
+      return;
+    }
+
+    projectCount++;
+    const p = {
+      id: Date.now(),
+      title,
+      desc,
+      tags: tagsRaw ? tagsRaw.split(',') : [],
+      link
+    };
+
+    projects.push(p);
+    saveProjects();
+    renderProject(p);
+
+    document.getElementById('pTitle').value = '';
+    document.getElementById('pDesc').value = '';
+    document.getElementById('pTags').value = '';
+    document.getElementById('pLink').value = '';
+  }
+
+  function deleteProject(id) {
+    if (!confirm('Remove this project?')) return;
+    const card = document.querySelector(`.project-card[data-id="${id}"]`);
+    if (card) card.remove();
+    const idx = projects.findIndex(p => p.id == id);
+    if (idx > -1) { projects.splice(idx, 1); saveProjects(); }
+
+    // Re-number
+    document.querySelectorAll('.project-card').forEach((c, i) => {
+      const numEl = c.querySelector('.project-num');
+      if (numEl) numEl.textContent = String(i + 1).padStart(3, '0');
+    });
+  }
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const el = document.querySelector(a.getAttribute('href'));
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+</script>
+</body>
+</html>
